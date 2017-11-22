@@ -1,37 +1,40 @@
 /*
- * User feedbek poi
+ * UserEntry feedbek poi
  */
 package org.userfeedback.userfeedbackservice;
 
+import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * User feedback poi
+ * UserEntry feedback poi
  * @author hfnukal
  */
 @XmlRootElement(name = "User")
-public class User {
+public class UserEntry {
     
     private String name;
     private String content;
+    private Date created;
 
     /**
      * User feedback poi class
      */
-    public User() {
+    public UserEntry() {
+        this.created = new Date();
     }
 
     /**
-     * User name field setter
-     * @param name User name as String
+     * UserEntry name field setter
+     * @param name UserEntry name as String
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * User name field getter
-     * @return User name as String
+     * UserEntry name field getter
+     * @return UserEntry name as String
      */
     public String getName() {
         return name;
@@ -52,6 +55,9 @@ public class User {
     public String getContent() {
         return content;
     }
-    
+
+    public Date getCreated() {
+        return created;
+    }
     
 }

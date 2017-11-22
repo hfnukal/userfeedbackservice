@@ -1,7 +1,6 @@
 package org.userfeedback.userfeedbackservice;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -17,53 +16,45 @@ import javax.ws.rs.core.MediaType;
 public class UserFeedbackResource {
 
     /**
-     * Method handling HTTP GET requests. The returned object will be sent to
-     * the client as "text/plain" media type.
-     *
-     * @return String that will be returned as a text/plain response.
-     */
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
-        return "Got it!";
-    }
-
-    /**
-     * Method returning list of feedback IDs as JSON array
+     * Method returning Map of feedbacks wit id as key
      * @return List of Feedback IDs
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/feedback")
-    public List<String> getFeedbackListJson() {
-        return (List<String>) new ArrayList<String>(UserData.getModel().keySet());
+    public Map getFeedbackListJson() {
+        return EntryData.getModel();
     }
 
     /**
-     * Method for entry detail as JSON object
-     * @param id ID of entry
-     * @return User object with entry data
+     * Method for entry search by name.
+     * @param search Search String
+     * @return Map with entry data and id
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/feedback/{id}")
-    public User getFeedbackJson(@PathParam("id") String id) {
-        User u = UserData.getModel().get(id);
-        return u;
-    }
-
-    // Testing from cmd line
-    // echo "Name:" ; read n; echo "Text"; read c ; curl -H "Content-Type: application/json" -X POST -d "{\"name\":\"$n\",\"content\":\"$c\"}"  http://localhost:8080/userfeedback/rest/addfeedback
-
+    @Path("/feedback/{search}")
+    public Map getFeedbackJson(@PathParam("search") String search) {
+        return EntryData.searchUser(search);
+   }
+    
+/* Testing from cmd line
+echo "Name:" ; read n; echo "Text"; read c ; curl -H "Content-Type: application/json" -X POST -d "{\"name\":\"$n\",\"content\":\"$c\"}"  http://localhost:8080/userfeedback/rest/addfeedback
+    
+n="aaa"; c="aaaa" ; curl -H "Content-Type: application/json" -X POST -d "{\"name\":\"$n\",\"content\":\"$c\"}"  http://localhost:8080/userfeedback/rest/feedback
+n="bbb"; c="bbbb" ; curl -H "Content-Type: application/json" -X POST -d "{\"name\":\"$n\",\"content\":\"$c\"}"  http://localhost:8080/userfeedback/rest/feedback
+n="ccc"; c="cccc" ; curl -H "Content-Type: application/json" -X POST -d "{\"name\":\"$n\",\"content\":\"$c\"}"  http://localhost:8080/userfeedback/rest/feedback
+n="abc"; c="abcd" ; curl -H "Content-Type: application/json" -X POST -d "{\"name\":\"$n\",\"content\":\"$c\"}"  http://localhost:8080/userfeedback/rest/feedback
+*/
     /**
      * Method for adding user feedback
-     * @param u User object
+     * @param u UserEntry object
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/feedback")
-    public void postFeedbackJson(final User u) {
-        String id = UserData.getNewId();
-        UserData.getModel().put(id, u);
+    public void postFeedbackJson(final UserEntry u) {
+        String id = EntryData.getNewId();
+        EntryData.getModel().put(id, u);
     }
 }

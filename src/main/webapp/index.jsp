@@ -10,31 +10,25 @@
             function updateFeedbacks() {
                 $.ajax({
                     type: 'GET',
-                    url: "userfeedback/rest/feedback",
+                    url: "userfeedback/rest/feedback/"+$("#searchInput").val(),
                     success: function (data) {
                         var json = eval(data);
                         $("#accordion").empty();
-                        for (i in json) {(function(i){
-                            $.ajax({
-                                type: 'GET',
-                                url:"userfeedback/rest/feedback/"+i,
-                                success: function (udata) {
-                                    var user = eval(udata);
-                                    $("#accordion").append("<h3>["+i+"] "+user.name+"</h3><div>"+user.content+"</div>");
-                                    $("#accordion").accordion( "refresh" );
-                                }
-                            });    
-                        })(i);}
+                        for (i in json) {
+                            var entry = json[i];
+                            $("#accordion").append("<h3>#" + i + " created "+entry.created+": " + entry.name + "</h3><div>" + entry.content + "</div>");
+                        }
+                        $("#accordion").accordion("refresh");
                     }
                 });
             }
-            
+
             function submitUser() {
                 var name = $("#input-name").val();
                 var content = $("#input-content").val();
-                var udata={ name: name, content: content };
+                var udata = {name: name, content: content};
                 $.ajax({
-                    type:"POST",
+                    type: "POST",
                     url: "userfeedback/rest/feedback",
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(udata),
@@ -43,31 +37,38 @@
                     }
                 });
             }
-            
+
             $(function () {
                 $("#accordion").accordion();
+                $("#searchInput").keyup(function (event) {
+                    if (event.keyCode === 13) {
+                        $("#searchButton").click();
+                    }
+                });
             });
-       
+
         </script>
     </head>
     <body>
         <h2>User feedback service</h2>
         <p>This REST service will receive user feedback and provide list of previous entries.</p>
 
-        <li><code>userfeedback/rest/feedback</code> GET List of entries</li>
-        <li><code>userfeedback/rest/feedback/{id}</code> GET Feedback details</li>
-        <li><code>userfeedback/rest/feedback</code> POST Feedback details, accepting parameters <i>name</i> and <i>content</i></li>
+    <li><code>userfeedback/rest/feedback</code> GET List of entries</li>
+    <li><code>userfeedback/rest/feedback/{search}</code> GET Search by user name</li>
+    <li><code>userfeedback/rest/feedback</code> POST Feedback details, accepting parameters <i>name</i> and <i>content</i></li>
 
-        <p>All in JSON format<p>
+    <p>All in JSON format<p>
 
-        <button onclick="updateFeedbacks();">Update list</button>
-        <div>
-            Name: <input type="text" id="input-name"> Content: <input type="text" id="input-content"> <button onclick="submitUser();">Add user</button>
-        </div>
 
-        <div id="accordion">
-            <h3>NO DATA</h3>
-            <div>no data</div>
-        </div>
-    </body>
+    <div>
+        Name: <input type="text" id="input-name"> Content: <input type="text" id="input-content"> <button onclick="submitUser();">Add user</button>
+    </div>
+    <div>
+        Search: <input id="searchInput" type="text"><button id="searchButton" onclick="updateFeedbacks();">Update list</button>
+    </div>
+    <div id="accordion">
+        <h3>NO DATA</h3>
+        <div>no data</div>
+    </div>
+</body>
 </html>

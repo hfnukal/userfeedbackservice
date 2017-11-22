@@ -1,6 +1,7 @@
 package org.userfeedback.userfeedbackservice;
 
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -66,25 +67,47 @@ public class UserFeedbackResourceTest {
     /**
      * Test to see that the feedback is added and then appears in list and detail.
      */
-    @Test
+    //@Test
     public void testFeedbackJson() {
-        // Create testing User entry
-        User u = new User();
+        
+        // Get list of entries, should contain one entry
+        Response responseMap;
+        responseMap = target.path("/rest/feedback").request().get(Response.class);
+        Map<String, UserEntry> m1 = responseMap.readEntity(Map.class);
+        assertEquals(0, m1.size());
+        
+        String[] users = {"Honza", "Vojta", "Michal", "Petr"};
+        for (int i = 0; i < users.length; i++) {
+            String user = users[i];
+            addEntry(user, user+".s coment"); 
+        }
+        addEntry(users[0], users[0]+".s 2nd coment");
+
+        // Get list of entries, should contain entries from userl list plus one extra
+        responseMap = target.path("/rest/feedback").request().get(Response.class);
+        Map<String, UserEntry> m2 = responseMap.readEntity(Map.class);
+        assertEquals(users.length+1, m2.size());
+        
+        // Get list of entries for first user, should contain two entries
+        responseMap = target.path("/rest/feedback/"+users[0]).request().get(Response.class);
+        Map m3 = responseMap.readEntity(Map.class);
+        assertEquals(2, m3.size());
+        
+        // Get list of entries for second user, should contain one entry
+        responseMap = target.path("/rest/feedback/"+users[0]).request().get(Response.class);
+        Map m4 = responseMap.readEntity(Map.class);
+        assertEquals(1, m4.size());
+        
+    }
+    
+    private void addEntry(String name, String content) {
+        // Create testing UserEntry entry
+        UserEntry u = new UserEntry();
         u.setName(TEST_USER);
         u.setContent(TEST_CONTENT);
         
         // Add entry on server
         Response response = target.path("/rest/feedback").request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(u));
-        
-        // Get list of entries, should contain one entry
-        Response responseList = target.path("/rest/feedback").request().get(Response.class);
-        List l = responseList.readEntity(List.class);
-        assertEquals("0", l.get(0));
-        
-        // Check User feedback detail
-        User responseUser = target.path("/rest/feedback/0").request().get(User.class);
-        assertEquals(TEST_USER, responseUser.getName());
-        assertEquals(TEST_CONTENT, responseUser.getContent());
     }
 }
